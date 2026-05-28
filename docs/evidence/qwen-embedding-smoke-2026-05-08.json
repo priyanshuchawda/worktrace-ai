@@ -1,0 +1,12 @@
+{
+  "command": "cd services/local-agent; uv run --python 3.13 python scripts/smoke_qwen_embedding.py",
+  "embedding_count": 0,
+  "embedding_dimension": 0,
+  "endpoint": "not_configured",
+  "generated_at": "2026-05-08T00:00:00+05:30",
+  "interpretation": "Skip-safe proof only. WORKTRACE_QWEN_EMBEDDING_BASE_URL is not configured in this local environment, so this does not prove real Qwen3 embedding runtime quality or performance.",
+  "model_name": "Qwen/Qwen3-Embedding-0.6B",
+  "privacy_leak_count": 0,
+  "reason": "WORKTRACE_QWEN_EMBEDDING_BASE_URL is not configured.",
+  "status": "skipped"
+}

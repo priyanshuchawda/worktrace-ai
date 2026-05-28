@@ -1,0 +1,26 @@
+{
+  "commands": [
+    "cd apps/desktop/src-tauri; cargo test sidecar_process_tree_kill_command --test sidecar_service",
+    "cd apps/desktop/src-tauri; cargo test configured_sidecar_process_can_start_and_stop_safely --test sidecar_service"
+  ],
+  "generated_at": "2026-05-08T00:00:00+05:30",
+  "interpretation": "Regression proof for the installer QA cleanup finding. Tauri-managed sidecar stop now attempts Windows process-tree termination with taskkill /PID <pid> /T /F before falling back to Child::kill/wait, so PyInstaller descendant processes are covered in the managed desktop path.",
+  "managed_start_stop_test": {
+    "status": "passed",
+    "test": "configured_sidecar_process_can_start_and_stop_safely"
+  },
+  "process_tree_command": {
+    "args": [
+      "/PID",
+      "4321",
+      "/T",
+      "/F"
+    ],
+    "program": "taskkill",
+    "status": "passed"
+  },
+  "remaining_limits": [
+    "This is a managed sidecar supervision fix, not code signing or release-channel proof.",
+    "The previous installer QA evidence still records that direct manual sidecar launch can leave a PyInstaller child if the launcher is stopped without process-tree cleanup."
+  ]
+}

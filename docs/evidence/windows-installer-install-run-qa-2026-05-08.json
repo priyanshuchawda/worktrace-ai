@@ -1,0 +1,63 @@
+{
+  "built_at": "2026-05-08T00:00:00+05:30",
+  "commands": [
+    "pnpm --dir apps/desktop package:sidecar",
+    "pnpm --dir apps/desktop package:windows"
+  ],
+  "desktop_launch": {
+    "app_path": "apps/desktop/src-tauri/target/installer-qa/WorkTraceAI/worktrace-desktop.exe",
+    "process_name": "worktrace-desktop",
+    "running_after_six_seconds": true,
+    "started": true,
+    "stopped_after_check": true
+  },
+  "installed_files": [
+    {
+      "name": "uninstall.exe",
+      "size_bytes": 79229
+    },
+    {
+      "name": "worktrace-desktop.exe",
+      "size_bytes": 9146368
+    },
+    {
+      "name": "worktrace-local-agent.exe",
+      "size_bytes": 37269072
+    }
+  ],
+  "installer": "apps/desktop/src-tauri/target/release/bundle/nsis/WorkTrace AI_0.1.0_x64-setup.exe",
+  "installer_exit_code": 0,
+  "interpretation": "Local Windows installer install/run QA passed for a temp current-user install: the installed desktop executable started and the installed sidecar answered /health. This is not code signing, updater, release-channel, or production distribution proof.",
+  "remaining_limits": [
+    "Installer is not code-signed.",
+    "No updater or release channel is configured.",
+    "Directly launching the PyInstaller sidecar left a child worktrace-local-agent process until it was stopped explicitly.",
+    "Silent uninstall removed most files but left the direct-launched sidecar executable while that child process was running; cleanup stopped the process and removed the temp QA directory manually."
+  ],
+  "sidecar_health": {
+    "db_path": "apps/desktop/src-tauri/target/installer-qa/db/worktrace.sqlite",
+    "health_status": "ok",
+    "schema_version": "003_ocr_results.sql",
+    "sidecar_path": "apps/desktop/src-tauri/target/installer-qa/WorkTraceAI/worktrace-local-agent.exe",
+    "started": true
+  },
+  "sidecar_packaging": {
+    "artifact": "apps/desktop/src-tauri/binaries/worktrace-local-agent-x86_64-pc-windows-msvc.exe",
+    "status": "passed"
+  },
+  "temp_install": {
+    "install_dir": "apps/desktop/src-tauri/target/installer-qa/WorkTraceAI",
+    "install_mode": "currentUser",
+    "silent_install": true
+  },
+  "uninstall": {
+    "cleanup_removed_qa_root": true,
+    "exit_code": 0,
+    "left_sidecar_while_child_process_running": true,
+    "remaining_worktrace_processes_after_cleanup": 0
+  },
+  "windows_package": {
+    "status": "passed",
+    "target": "nsis"
+  }
+}

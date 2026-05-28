@@ -1,0 +1,3 @@
+ALTER TABLE sessions ADD COLUMN goal TEXT NULL;
+ALTER TABLE sessions ADD COLUMN project_label TEXT NULL;
+ALTER TABLE sessions ADD COLUMN tags_json TEXT NOT NULL DEFAULT '[]';

@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "sessions": [
+    {
+      "id": "golden_001",
+      "title": "Python test fix and unverified deploy",
+      "events": [
+        {"id": "g001_e001", "session_id": "golden_001", "timestamp": "2026-05-06T09:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "bug.py"}},
+        {"id": "g001_e002", "session_id": "golden_001", "timestamp": "2026-05-06T09:01:00+05:30", "source": "file_watcher", "type": "file_changed", "privacy_level": "safe", "confidence": 1.0, "metadata": {"path": "services/local-agent/bug.py", "operation": "modified", "file_name": "bug.py", "extension": ".py"}},
+        {"id": "g001_e003", "session_id": "golden_001", "timestamp": "2026-05-06T09:02:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "uv run --python 3.13 pytest", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_pytest"}},
+        {"id": "g001_e004", "session_id": "golden_001", "timestamp": "2026-05-06T09:03:00+05:30", "source": "file_watcher", "type": "file_changed", "privacy_level": "safe", "confidence": 1.0, "metadata": {"path": "services/local-agent/bug.py", "operation": "modified", "file_name": "bug.py", "extension": ".py"}},
+        {"id": "g001_e005", "session_id": "golden_001", "timestamp": "2026-05-06T09:04:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "uv run --python 3.13 pytest", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_pytest"}},
+        {"id": "g001_e006", "session_id": "golden_001", "timestamp": "2026-05-06T09:05:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm --dir apps/desktop deploy", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_deploy_001"}}
+      ],
+      "expectations": {"timeline_labels": ["coding", "debugging", "coding", "testing", "terminal"], "finding_types": ["test_fix_test_loop", "deployment_gap"], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_002",
+      "title": "Repeated desktop build command",
+      "events": [
+        {"id": "g002_e001", "session_id": "golden_002", "timestamp": "2026-05-06T10:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm --dir apps/desktop build", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_pnpm_build"}},
+        {"id": "g002_e002", "session_id": "golden_002", "timestamp": "2026-05-06T10:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm --dir apps/desktop build", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_pnpm_build"}},
+        {"id": "g002_e003", "session_id": "golden_002", "timestamp": "2026-05-06T10:02:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm --dir apps/desktop build", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_pnpm_build"}}
+      ],
+      "expectations": {"timeline_labels": ["terminal"], "finding_types": ["repeated_command"], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_003",
+      "title": "Two failed scripts as blocker",
+      "events": [
+        {"id": "g003_e001", "session_id": "golden_003", "timestamp": "2026-05-06T11:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "python scripts/import_data.py", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_import_fail"}},
+        {"id": "g003_e002", "session_id": "golden_003", "timestamp": "2026-05-06T11:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "python scripts/clean_data.py", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_clean_fail"}}
+      ],
+      "expectations": {"timeline_labels": ["debugging"], "finding_types": ["blocker_period"], "blocker_event_ids": ["g003_e001", "g003_e002"]}
+    },
+    {
+      "id": "golden_004",
+      "title": "Deploy followed by verification",
+      "events": [
+        {"id": "g004_e001", "session_id": "golden_004", "timestamp": "2026-05-06T12:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm deploy", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_deploy_004"}},
+        {"id": "g004_e002", "session_id": "golden_004", "timestamp": "2026-05-06T12:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm test:smoke", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_smoke_004"}}
+      ],
+      "expectations": {"timeline_labels": ["terminal", "testing"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_005",
+      "title": "Context switching investigation",
+      "events": [
+        {"id": "g005_e001", "session_id": "golden_005", "timestamp": "2026-05-06T13:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "App.tsx"}},
+        {"id": "g005_e002", "session_id": "golden_005", "timestamp": "2026-05-06T13:01:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "Chrome", "window_title": "Docs"}},
+        {"id": "g005_e003", "session_id": "golden_005", "timestamp": "2026-05-06T13:02:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "App.tsx"}},
+        {"id": "g005_e004", "session_id": "golden_005", "timestamp": "2026-05-06T13:03:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "Chrome", "window_title": "Issue"}},
+        {"id": "g005_e005", "session_id": "golden_005", "timestamp": "2026-05-06T13:04:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "App.tsx"}},
+        {"id": "g005_e006", "session_id": "golden_005", "timestamp": "2026-05-06T13:05:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "Windows Terminal", "window_title": "PowerShell"}}
+      ],
+      "expectations": {"timeline_labels": ["coding", "browser_research", "coding", "browser_research", "coding", "terminal"], "finding_types": ["context_switching"], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_006",
+      "title": "Browser research only",
+      "events": [
+        {"id": "g006_e001", "session_id": "golden_006", "timestamp": "2026-05-06T14:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.9, "metadata": {"app": "Chrome", "window_title": "FastAPI documentation"}}
+      ],
+      "expectations": {"timeline_labels": ["browser_research"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_007",
+      "title": "Writing notes",
+      "events": [
+        {"id": "g007_e001", "session_id": "golden_007", "timestamp": "2026-05-06T15:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.9, "metadata": {"app": "Notepad", "window_title": "notes.txt"}}
+      ],
+      "expectations": {"timeline_labels": ["unknown"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_008",
+      "title": "Single file edit",
+      "events": [
+        {"id": "g008_e001", "session_id": "golden_008", "timestamp": "2026-05-06T16:00:00+05:30", "source": "file_watcher", "type": "file_changed", "privacy_level": "safe", "confidence": 1.0, "metadata": {"path": "README.md", "operation": "modified", "file_name": "README.md", "extension": ".md"}}
+      ],
+      "expectations": {"timeline_labels": ["coding"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_009",
+      "title": "Passing pytest run",
+      "events": [
+        {"id": "g009_e001", "session_id": "golden_009", "timestamp": "2026-05-06T17:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "uv run --python 3.13 pytest", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_pytest_009"}}
+      ],
+      "expectations": {"timeline_labels": ["testing"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_010",
+      "title": "Fail then pass without edit",
+      "events": [
+        {"id": "g010_e001", "session_id": "golden_010", "timestamp": "2026-05-06T18:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "cargo test", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_cargo_test_010"}},
+        {"id": "g010_e002", "session_id": "golden_010", "timestamp": "2026-05-06T18:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "cargo test", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_cargo_test_010"}}
+      ],
+      "expectations": {"timeline_labels": ["debugging", "testing"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_011",
+      "title": "Repeated failed tests then pass",
+      "events": [
+        {"id": "g011_e001", "session_id": "golden_011", "timestamp": "2026-05-06T19:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm test", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_pnpm_test_011"}},
+        {"id": "g011_e002", "session_id": "golden_011", "timestamp": "2026-05-06T19:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm test", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_pnpm_test_011"}},
+        {"id": "g011_e003", "session_id": "golden_011", "timestamp": "2026-05-06T19:02:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm test", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_pnpm_test_011"}}
+      ],
+      "expectations": {"timeline_labels": ["debugging", "testing"], "finding_types": ["repeated_command", "blocker_period"], "blocker_event_ids": ["g011_e001", "g011_e002"]}
+    },
+    {
+      "id": "golden_012",
+      "title": "Publish without verification",
+      "events": [
+        {"id": "g012_e001", "session_id": "golden_012", "timestamp": "2026-05-06T20:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "npm publish", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_publish_012"}}
+      ],
+      "expectations": {"timeline_labels": ["terminal"], "finding_types": ["deployment_gap"], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_013",
+      "title": "Code browser terminal flow",
+      "events": [
+        {"id": "g013_e001", "session_id": "golden_013", "timestamp": "2026-05-06T21:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.9, "metadata": {"app": "VS Code", "window_title": "main.ts"}},
+        {"id": "g013_e002", "session_id": "golden_013", "timestamp": "2026-05-06T21:01:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.9, "metadata": {"app": "Chrome", "window_title": "MDN"}},
+        {"id": "g013_e003", "session_id": "golden_013", "timestamp": "2026-05-06T21:02:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.9, "metadata": {"app": "Windows Terminal", "window_title": "PowerShell"}}
+      ],
+      "expectations": {"timeline_labels": ["coding", "browser_research", "terminal"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_014",
+      "title": "Redacted safe command",
+      "events": [
+        {"id": "g014_e001", "session_id": "golden_014", "timestamp": "2026-05-06T22:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "redacted", "confidence": 1.0, "metadata": {"command": "curl --api-key [REDACTED] https://example.test", "shell": "powershell", "exit_code": 0, "redacted": true, "command_hash": "hash_redacted_014"}}
+      ],
+      "expectations": {"timeline_labels": ["terminal"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_015",
+      "title": "Edit then lint check",
+      "events": [
+        {"id": "g015_e001", "session_id": "golden_015", "timestamp": "2026-05-06T23:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "lint.py"}},
+        {"id": "g015_e002", "session_id": "golden_015", "timestamp": "2026-05-06T23:01:00+05:30", "source": "file_watcher", "type": "file_changed", "privacy_level": "safe", "confidence": 1.0, "metadata": {"path": "services/local-agent/lint.py", "operation": "modified", "file_name": "lint.py", "extension": ".py"}},
+        {"id": "g015_e003", "session_id": "golden_015", "timestamp": "2026-05-06T23:02:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "uv run --python 3.13 ruff check .", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_ruff_015"}}
+      ],
+      "expectations": {"timeline_labels": ["coding", "testing"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_016",
+      "title": "Cargo test fix loop",
+      "events": [
+        {"id": "g016_e001", "session_id": "golden_016", "timestamp": "2026-05-07T00:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "cargo test", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_cargo_test_016"}},
+        {"id": "g016_e002", "session_id": "golden_016", "timestamp": "2026-05-07T00:01:00+05:30", "source": "file_watcher", "type": "file_changed", "privacy_level": "safe", "confidence": 1.0, "metadata": {"path": "src/lib.rs", "operation": "modified", "file_name": "lib.rs", "extension": ".rs"}},
+        {"id": "g016_e003", "session_id": "golden_016", "timestamp": "2026-05-07T00:02:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "cargo test", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_cargo_test_016"}}
+      ],
+      "expectations": {"timeline_labels": ["debugging", "coding", "testing"], "finding_types": ["test_fix_test_loop"], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_017",
+      "title": "Release verified with health check",
+      "events": [
+        {"id": "g017_e001", "session_id": "golden_017", "timestamp": "2026-05-07T01:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "python release.py", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_release_017"}},
+        {"id": "g017_e002", "session_id": "golden_017", "timestamp": "2026-05-07T01:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "curl https://example.test/health", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_health_017"}}
+      ],
+      "expectations": {"timeline_labels": ["terminal"], "finding_types": [], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_018",
+      "title": "Repeated package build",
+      "events": [
+        {"id": "g018_e001", "session_id": "golden_018", "timestamp": "2026-05-07T02:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "python -m build", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_py_build_018"}},
+        {"id": "g018_e002", "session_id": "golden_018", "timestamp": "2026-05-07T02:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "python -m build", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_py_build_018"}},
+        {"id": "g018_e003", "session_id": "golden_018", "timestamp": "2026-05-07T02:02:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "python -m build", "shell": "powershell", "exit_code": 0, "redacted": false, "command_hash": "hash_py_build_018"}}
+      ],
+      "expectations": {"timeline_labels": ["terminal"], "finding_types": ["repeated_command"], "blocker_event_ids": []}
+    },
+    {
+      "id": "golden_019",
+      "title": "Failed deploy blocker",
+      "events": [
+        {"id": "g019_e001", "session_id": "golden_019", "timestamp": "2026-05-07T03:00:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm deploy", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_deploy_fail_019a"}},
+        {"id": "g019_e002", "session_id": "golden_019", "timestamp": "2026-05-07T03:01:00+05:30", "source": "terminal_command_detector", "type": "terminal_command", "privacy_level": "safe", "confidence": 1.0, "metadata": {"command": "pnpm deploy --prod", "shell": "powershell", "exit_code": 1, "redacted": false, "command_hash": "hash_deploy_fail_019b"}}
+      ],
+      "expectations": {"timeline_labels": ["debugging"], "finding_types": ["blocker_period", "deployment_gap"], "blocker_event_ids": ["g019_e001", "g019_e002"]}
+    },
+    {
+      "id": "golden_020",
+      "title": "Long context switch session",
+      "events": [
+        {"id": "g020_e001", "session_id": "golden_020", "timestamp": "2026-05-07T04:00:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "main.py"}},
+        {"id": "g020_e002", "session_id": "golden_020", "timestamp": "2026-05-07T04:01:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "Chrome", "window_title": "Search"}},
+        {"id": "g020_e003", "session_id": "golden_020", "timestamp": "2026-05-07T04:02:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "Windows Terminal", "window_title": "PowerShell"}},
+        {"id": "g020_e004", "session_id": "golden_020", "timestamp": "2026-05-07T04:03:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "main.py"}},
+        {"id": "g020_e005", "session_id": "golden_020", "timestamp": "2026-05-07T04:04:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "Chrome", "window_title": "Docs"}},
+        {"id": "g020_e006", "session_id": "golden_020", "timestamp": "2026-05-07T04:05:00+05:30", "source": "active_window", "type": "active_window_changed", "privacy_level": "safe", "confidence": 0.95, "metadata": {"app": "VS Code", "window_title": "main.py"}}
+      ],
+      "expectations": {"timeline_labels": ["coding", "browser_research", "terminal", "coding", "browser_research", "coding"], "finding_types": ["context_switching"], "blocker_event_ids": []}
+    }
+  ]
+}

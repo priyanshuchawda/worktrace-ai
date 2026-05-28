@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WORKTRACE_AI_PROVIDER: local_ollama
+  WORKTRACE_ENABLE_DEV_CLOUD_AI: "false"
+
+jobs:
+  shared:
+    name: Shared TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm --dir packages/shared install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm --dir packages/shared typecheck
+      - name: Test
+        run: pnpm --dir packages/shared test
+
+  desktop:
+    name: Desktop TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm --dir apps/desktop install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm --dir apps/desktop typecheck
+      - name: Lint
+        run: pnpm --dir apps/desktop lint
+      - name: Test
+        run: pnpm --dir apps/desktop test
+      - name: Build
+        run: pnpm --dir apps/desktop build
+
+  python:
+    name: Python Sidecar
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: services/local-agent
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: services/local-agent/uv.lock
+      - name: Ruff format
+        run: uv run --python 3.13 ruff format --check .
+      - name: Ruff check
+        run: uv run --python 3.13 ruff check .
+      - name: Pyright
+        run: uv run --python 3.13 pyright
+      - name: Pytest
+        run: uv run --python 3.13 pytest
+
+  rust:
+    name: Rust Tauri Bridge
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/desktop/src-tauri
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: services/local-agent/uv.lock
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Install desktop dependencies
+        working-directory: .
+        run: pnpm --dir apps/desktop install --frozen-lockfile
+      - name: Build sidecar precondition
+        working-directory: .
+        run: pnpm --dir apps/desktop package:sidecar
+      - name: Cargo fmt
+        run: cargo fmt --all -- --check
+      - name: Cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Cargo test
+        run: cargo test --workspace

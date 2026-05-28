@@ -1,0 +1,54 @@
+{
+  "date": "2026-05-27",
+  "status": "distribution_decision_updated",
+  "scope": "Release hardening policy for Windows installer signing, Microsoft Store MSIX/AppX distribution, updater, release channels, and sidecar bundle gates.",
+  "installer_status": {
+    "target": "NSIS",
+    "public_distribution_target": "Future Microsoft Store-compatible MSIX/AppX path, deferred until Store packaging and certification are validated.",
+    "current_user_install": true,
+    "latest_local_install_run_qa": "docs/evidence/windows-installer-install-run-qa-2026-05-08.json",
+    "fresh_installer_qa_run": false,
+    "fresh_installer_qa_reason": "No installer, Store/MSIX package, updater, or sidecar packaging code changed in this issue; this evidence records the release gate that must be satisfied before public distribution."
+  },
+  "code_signing": {
+    "configured": false,
+    "decision": "Do not buy a paid direct-distribution Windows code-signing certificate now; future public Windows distribution targets Microsoft Store-compatible MSIX/AppX packaging and Store signing after successful Store processing.",
+    "direct_distribution_policy": "Do not publish unsigned NSIS/MSI/EXE installers as public GitHub Release downloads.",
+    "secret_policy": "Never commit private keys, PFX files, certificate passwords, vault credentials, signing service tokens, Partner Center credentials, or signing logs containing secrets."
+  },
+  "updater": {
+    "configured": false,
+    "decision": "Do not enable the Tauri updater for Store/public distribution unless a later trusted-channel design explicitly requires and verifies it. Future Store channel updates are expected to be Store-managed.",
+    "required_channels_before_public_release": [
+      "store-beta",
+      "store-stable"
+    ],
+    "development_channel_policy": "dev builds remain manual/local-only and do not auto-update.",
+    "alpha_channel_policy": "GitHub alpha milestones may contain source/release notes and safe verification metadata, but must not publish unsigned installable Windows binaries."
+  },
+  "sidecar_bundle_assumptions": {
+    "required_before_windows_package": "pnpm --dir apps/desktop package:sidecar",
+    "expected_target_triple_artifact": "apps/desktop/src-tauri/binaries/worktrace-local-agent-x86_64-pc-windows-msvc.exe",
+    "expected_installed_files": [
+      "worktrace-desktop.exe",
+      "worktrace-local-agent.exe",
+      "uninstall.exe"
+    ],
+    "runtime_boundary": "The sidecar must bind to 127.0.0.1 and must not expose hosted AI credentials through React or Rust.",
+    "model_bundle_boundary": "No Gemma, Qwen, PaddleOCR, Qwen-VL, or faster-whisper models are bundled by this installer."
+  },
+  "public_release_blockers": [
+    "No Store-compatible MSIX/AppX packaging path validated",
+    "No Microsoft Store identity, submission, or certification evidence",
+    "No Store-managed update path evidence",
+    "No minimal CI gates",
+    "No public-release evidence for sidecar process-tree cleanup in the intended distribution path"
+  ],
+  "privacy_evidence": {
+    "contains_secrets": false,
+    "contains_api_keys": false,
+    "contains_raw_session_evidence": false,
+    "contains_screenshot_pixels": false,
+    "contains_local_private_paths": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": "cd services/local-agent; uv run --python 3.13 python scripts/smoke_paddleocr_sample.py",
+  "evidence_ids": [],
+  "generated_at": "2026-05-08T00:00:00+05:30",
+  "interpretation": "Skip-safe proof only. PaddleOCR is not installed in this local uv environment, so this does not prove real PaddleOCR recognition quality or performance.",
+  "line_count": 0,
+  "privacy_leak_count": 0,
+  "provider": "paddleocr",
+  "reason": "OCR runtime provider paddleocr is not installed. Recording continues without OCR.",
+  "status": "skipped",
+  "text_preview": null
+}

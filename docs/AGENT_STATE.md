@@ -1,0 +1,523 @@
+# Agent State
+
+## Last Updated
+2026-05-08 16:40 local / 2026-05-08 11:10 UTC
+
+## Current Issue
+#117 — Stop packaged sidecar process tree
+
+## Current Branch
+feat/117-sidecar-process-tree-cleanup
+
+## Current Phase
+Implemented Windows process-tree cleanup for managed sidecar stop; focused Rust tests passed; full gate pending
+
+## Current Verification
+- `cd apps/desktop/src-tauri; cargo test sidecar_process_tree_kill_command --test sidecar_service` — failed as expected before implementation because `sidecar_process_tree_kill_command_for_test` did not exist.
+- `cd apps/desktop/src-tauri; cargo test sidecar_process_tree_kill_command --test sidecar_service` — passed after adding Windows process-tree kill command coverage.
+- `cd apps/desktop/src-tauri; cargo test configured_sidecar_process_can_start_and_stop_safely --test sidecar_service` — passed.
+
+## Completed Since Last Update
+- Merged #115 via PR #116 and confirmed issue #115 is closed.
+- Created #117: Stop packaged sidecar process tree.
+- Started branch `feat/117-sidecar-process-tree-cleanup` from updated `main`.
+- Added red Rust coverage for Windows process-tree termination command construction.
+- Updated managed sidecar stop to attempt `taskkill /PID <pid> /T /F` before the existing `Child::kill`/`wait` fallback.
+- Recorded regression evidence at `docs/evidence/sidecar-process-tree-cleanup-2026-05-08.json`.
+- Merged #113 via PR #114 and confirmed issue #113 is closed.
+- Created #115: Windows installer install/run QA smoke.
+- Started branch `feat/115-installer-qa-smoke` from updated `main`.
+- Added red claim-discipline coverage for the installer install/run QA proof.
+- Ran fresh sidecar packaging, Windows NSIS packaging, temp silent install, installed desktop launch smoke, installed sidecar `/health` smoke, silent uninstall, and cleanup.
+- Recorded local installer QA evidence at `docs/evidence/windows-installer-install-run-qa-2026-05-08.json`, including the cleanup caveat.
+- Merged #111 via PR #112 and confirmed issue #111 is closed.
+- Created #113: faster-whisper local-path smoke.
+- Started branch `feat/113-faster-whisper-smoke` from updated `main`.
+- Read faster-whisper docs and inspected `worktrace_agent.capture.faster_whisper_runtime` plus existing audio transcription tests.
+- Added red tests for the faster-whisper smoke script unconfigured-model-path skip path and fake-local-path-runtime pass path; confirmed red on missing `worktrace_agent.scripts.smoke_faster_whisper_local_path`.
+- Implemented `scripts/smoke_faster_whisper_local_path.py` and `worktrace_agent.scripts.smoke_faster_whisper_local_path` with explicit local model path configuration, sanitized public JSON, fakeable recognizer, and no public raw audio bytes, transcript text, or absolute local paths.
+- Recorded local smoke evidence at `docs/evidence/faster-whisper-smoke-2026-05-08.json`; no local model path is configured, so this is skip-safe proof only, not a real faster-whisper runtime pass.
+- Merged #109 via PR #110 and confirmed issue #109 is closed.
+- Created #111: Qwen3-VL selected-frame local runtime smoke.
+- Started branch `feat/111-qwen3-vl-smoke` from updated `main`.
+- Read Qwen3-VL docs and inspected `worktrace_agent.ai.qwen_vl_runtime` plus existing selected-frame adapter tests.
+- Added red tests for the Qwen3-VL smoke script unconfigured-endpoint skip path and fake-localhost-runtime pass path; confirmed red on missing `worktrace_agent.scripts.smoke_qwen_vl_selected_frame`.
+- Implemented `scripts/smoke_qwen_vl_selected_frame.py` and `worktrace_agent.scripts.smoke_qwen_vl_selected_frame` with explicit endpoint configuration, sanitized public JSON, fakeable transport, and no public image bytes, data URLs, or full prompt text.
+- Recorded local smoke evidence at `docs/evidence/qwen-vl-smoke-2026-05-08.json`; no local endpoint is configured, so this is skip-safe proof only, not a real Qwen3-VL selected-frame runtime pass.
+- Merged #107 via PR #108 and confirmed issue #107 is closed.
+- Created #109: Qwen3 embedding local runtime smoke.
+- Started branch `feat/109-qwen3-embedding-smoke` from updated `main`.
+- Read Qwen embedding docs and inspected `worktrace_agent.ai.qwen_embedding_runtime` plus existing adapter tests.
+- Added red tests for the Qwen embedding smoke script unconfigured-endpoint skip path and fake-localhost-runtime pass path; confirmed red on missing `worktrace_agent.scripts.smoke_qwen_embedding`.
+- Implemented `scripts/smoke_qwen_embedding.py` and `worktrace_agent.scripts.smoke_qwen_embedding` with explicit endpoint configuration, sanitized public JSON, fakeable transport, and no public input text or vectors.
+- Recorded local smoke evidence at `docs/evidence/qwen-embedding-smoke-2026-05-08.json`; no local endpoint is configured, so this is skip-safe proof only, not a real embedding runtime pass.
+- Merged #105 via PR #106 and confirmed issue #105 is closed.
+- Created #107: PaddleOCR real sample screenshot smoke.
+- Started branch `codex/107-paddleocr-real-smoke` from updated `main`.
+- Read `docs/models/ocr.md` and `docs/pp_ocr.md`, then inspected the existing lazy PaddleOCR adapter and selective OCR worker tests.
+- Added red tests for the PaddleOCR smoke script missing-runtime skip path and fake-runtime pass path; confirmed red on missing `worktrace_agent.scripts.smoke_paddleocr_sample`.
+- Implemented `scripts/smoke_paddleocr_sample.py` and `worktrace_agent.scripts.smoke_paddleocr_sample` with an embedded local PNG sample, public JSON output, evidence ID discipline, privacy leak counting, and skip-safe runtime availability.
+- Recorded the local smoke evidence at `docs/evidence/paddleocr-smoke-2026-05-08.json`; PaddleOCR is not installed locally, so this is skip-safe proof only, not a real recognition pass.
+- Merged #95 via PR #96 and confirmed issue #95 is closed.
+- Created #97: Qwen3-VL selected-frame vision.
+- Started branch `feat/97-qwen3-vl-selected-frame-vision` from updated `main`.
+- Read Qwen3-VL/model docs for #97, including `docs/Qwen3-VL-2B-Instruct.txt`, `docs/Qwen3-VL-4B-Instruct.md`, `docs/models/qwen.md`, and `docs/models/local_model_runtime.md`.
+- Inspected existing selected-frame policy code in `services/local-agent/src/worktrace_agent/ai/vision_analysis.py` and tests in `tests/test_selected_frame_vision_analysis.py`.
+- Wrote the #97 implementation plan at `docs/superpowers/plans/2026-05-08-qwen3-vl-selected-frame-vision.md`.
+- Added red tests for Qwen3-VL localhost URL validation, 2B/4B manifest metadata, fake transport payload/response parsing, safe runtime failures, image byte caps, model availability, and no heavy imports.
+- Confirmed red state with `uv run --python 3.13 pytest tests/test_qwen_vl_runtime.py tests/test_selected_frame_vision_analysis.py -q` failing on missing `worktrace_agent.ai.qwen_vl_runtime`.
+- Implemented `worktrace_agent.ai.qwen_vl_runtime` with localhost-only OpenAI-style chat transport, Qwen3-VL 2B/4B manifests, selected-frame analyzer, safe parsing, redacted prompt context, and availability config builder.
+- Added selected-frame evidence fallback coverage for screenshots without source event IDs.
+- Updated README/model docs for selected-frame-only Qwen3-VL adapter behavior and no-download/no-real-smoke limitations.
+- Focused #97 checks passed:
+  - `uv run --python 3.13 ruff format .`
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright`
+  - `uv run --python 3.13 pytest tests/test_qwen_vl_runtime.py tests/test_selected_frame_vision_analysis.py tests/test_model_availability.py tests/test_portfolio_claim_discipline.py -q` (34 passed)
+- Re-ran the focused #97 checks from scratch after an interrupted command; format, Ruff, Pyright, and 34 focused tests passed.
+- Full #97 quality gate passed:
+  - `uv run --python 3.13 ruff format .` (93 files left unchanged)
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright` (0 errors)
+  - `uv run --python 3.13 pytest` (242 passed)
+  - `pnpm --dir packages/shared typecheck`
+  - `pnpm --dir packages/shared test` (14 passed)
+  - `pnpm --dir apps/desktop typecheck`
+  - `pnpm --dir apps/desktop lint`
+  - `pnpm --dir apps/desktop test` (28 passed)
+  - `pnpm --dir apps/desktop build`
+  - `cargo fmt --all -- --check`
+  - `cargo clippy --workspace --all-targets -- -D warnings`
+  - `cargo test --workspace` (31 passed)
+- Opened PR #98 for #97, confirmed the available GitGuardian check was green, merged PR #98 into `main`, and confirmed issue #97 is closed.
+- Created #99: Optional audio transcription runtime.
+- Started branch `feat/99-optional-audio-transcription-runtime` from updated `main`.
+- Read `docs/faster_whisper.md`, existing audio transcription code/tests, and model runtime policy docs for #99.
+- Wrote the #99 implementation plan at `docs/superpowers/plans/2026-05-08-optional-audio-transcription-runtime.md`.
+- Added red tests for faster-whisper manifest/config metadata, fake recognizer parsing, safe failures, model availability/cache metadata, no heavy imports, and private-mode suppression.
+- Confirmed red state with `uv run --python 3.13 pytest tests/test_faster_whisper_runtime.py tests/test_audio_embeddings.py -q` failing on missing `worktrace_agent.capture.faster_whisper_runtime`.
+- Implemented `worktrace_agent.capture.faster_whisper_runtime` with lazy binding, fakeable recognizer protocol, CPU int8 base default metadata, manual-only Distil-Whisper metadata, temp-file cleanup, safe runtime errors, and availability/cache spec builders.
+- Updated audio transcription policy so private mode suppresses transcription before the engine is called.
+- Focused #99 audio tests passed with `uv run --python 3.13 pytest tests/test_faster_whisper_runtime.py tests/test_audio_embeddings.py -q` (15 passed).
+- Focused #99 model/audio checks passed:
+  - `uv run --python 3.13 ruff format .`
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright`
+  - `uv run --python 3.13 pytest tests/test_faster_whisper_runtime.py tests/test_audio_embeddings.py tests/test_model_availability.py tests/test_model_cache.py tests/test_portfolio_claim_discipline.py -q` (46 passed)
+- Confirmed `faster_whisper` is not installed in the local uv environment with `importlib.util.find_spec`, so no real smoke can run without adding the optional dependency/model.
+- Full #99 quality gate passed:
+  - `uv run --python 3.13 ruff format .` (95 files left unchanged)
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright` (0 errors)
+  - `uv run --python 3.13 pytest` (251 passed)
+  - `pnpm --dir packages/shared typecheck`
+  - `pnpm --dir packages/shared test` (14 passed)
+  - `pnpm --dir apps/desktop typecheck`
+  - `pnpm --dir apps/desktop lint`
+  - `pnpm --dir apps/desktop test` (28 passed)
+  - `pnpm --dir apps/desktop build`
+  - `cargo fmt --all -- --check`
+  - `cargo clippy --workspace --all-targets -- -D warnings`
+  - `cargo test --workspace` (31 passed)
+- Self-review found that the real faster-whisper binding could pass a model-size string to `WhisperModel`, which docs say can auto-download from Hugging Face.
+- Added a red regression test proving the real binding must refuse missing local model paths before importing `faster_whisper`.
+- Updated the runtime config/binding so real faster-whisper calls require an explicit existing local model path before import.
+- Refreshed focused #99 checks after the auto-download guard:
+  - `uv run --python 3.13 ruff format .`
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright`
+  - `uv run --python 3.13 pytest tests/test_faster_whisper_runtime.py tests/test_audio_embeddings.py tests/test_model_availability.py tests/test_model_cache.py tests/test_portfolio_claim_discipline.py -q` (47 passed)
+- Refreshed the full #99 quality gate after the auto-download guard:
+  - `uv run --python 3.13 ruff format .` (95 files left unchanged)
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright` (0 errors)
+  - `uv run --python 3.13 pytest` (252 passed)
+  - `pnpm --dir packages/shared typecheck`
+  - `pnpm --dir packages/shared test` (14 passed)
+  - `pnpm --dir apps/desktop typecheck`
+  - `pnpm --dir apps/desktop lint`
+  - `pnpm --dir apps/desktop test` (28 passed)
+  - `pnpm --dir apps/desktop build`
+  - `cargo fmt --all -- --check`
+  - `cargo clippy --workspace --all-targets -- -D warnings`
+  - `cargo test --workspace` (31 passed)
+- Opened PR #100 for #99, confirmed the available GitGuardian check was green, merged PR #100 into `main`, and confirmed issue #99 is closed.
+- Created #101: AI report eval benchmark.
+- Started branch `feat/101-ai-report-eval-benchmark` from updated `main`.
+- Read existing golden eval runner, report-generation contract, eval docs/results, and portfolio claim-discipline tests.
+- Wrote the #101 implementation plan at `docs/superpowers/plans/2026-05-08-ai-report-eval-benchmark.md`.
+- Added red tests for AI report eval modes, reproducible table output, generated evidence citation validity, invalid evidence failure, privacy leak count, unavailable fallback, and no model call during recording.
+- Confirmed red state with `uv run --python 3.13 pytest tests/test_ai_report_eval_benchmark.py -q` failing on missing `worktrace_agent.evals.ai_report_benchmark`.
+- Implemented `worktrace_agent.evals.ai_report_benchmark` with deterministic report, fake Gemma E2B, fake Gemma E4B deep, and model-unavailable modes.
+- Updated `scripts/evaluate_model.py` to print the deterministic golden-session table plus the AI report eval aggregate table.
+- Updated README/eval docs to state that AI report evals are fake-runtime proxy checks and not real Gemma runtime proof.
+- Focused #101 checks passed: `uv run --python 3.13 pytest tests/test_ai_report_eval_benchmark.py tests/test_golden_sessions_eval.py tests/test_portfolio_claim_discipline.py -q` (17 passed) and `uv run --python 3.13 python scripts/evaluate_model.py`.
+- Full #101 quality gate passed across Python, shared package, desktop, and Rust.
+- Opened PR #102 for #101, confirmed GitGuardian passed, merged PR #102 into `main`, and confirmed issue #101 is closed.
+- Created #103: Real Gemma E2B local smoke and AI report proof.
+- Started branch `feat/103-real-gemma-e2b-smoke` from updated `main`.
+- Confirmed Ollama is installed (`ollama version is 0.23.1`) and `ollama list` shows both `gemma4:e2b` and `gemma4:e4b`.
+- User confirmed the current `services/local-agent/pyproject.toml` and `services/local-agent/uv.lock` dependency changes were intentional and may be included.
+- Wrote the #103 implementation plan at `docs/superpowers/plans/2026-05-08-real-gemma-e2b-local-smoke.md`.
+- Added red tests for the Gemma E2B smoke script skip/pass behavior and confirmed red state on missing `worktrace_agent.scripts.smoke_gemma_e2b_report`.
+- Implemented a skip-safe Gemma E2B smoke script using fixed `ollama --version` / `ollama list` commands, the existing localhost-only Ollama report adapter, evidence-cited report validation, and safe JSON output without prompt text.
+- First real smoke failed safely with privacy leak count `0`; root cause was the 30-second runtime timeout during local model generation.
+- Added regression coverage that the smoke path uses a longer timeout, then updated the smoke script timeout to 180 seconds.
+- Real smoke passed with `ollama version is 0.23.1`, model `gemma4:e2b`, evidence ID `evt_gemma_e2b_smoke_terminal`, and privacy leak count `0`.
+- Recorded smoke evidence at `docs/evidence/gemma-e2b-smoke-2026-05-08.json`.
+- Focused #103 tests and full Python/shared/desktop/Rust quality gate passed.
+- Opened PR #104 for #103, confirmed GitGuardian passed, merged PR #104 into `main`, and confirmed issue #103 is closed.
+- Created #105: Desktop model settings and runtime status UI.
+- Started branch `codex/105-model-settings-ui` from updated `main`.
+- Added red React tests for model settings rendering, localhost endpoint validation, remote endpoint rejection, disabled report generation, no prompt display, and no download button.
+- Confirmed red state with `pnpm test -- -t "model settings"` failing because the Model Settings region did not exist.
+- Implemented a desktop Model Settings panel with local endpoint input, localhost-only validation, Gemma E2B/E4B status cards, generate-unavailable reasons, and no prompt/download/start-server actions.
+- Focused model settings tests passed with `pnpm test -- -t "model settings"` (2 passed, 28 skipped).
+- Full #105 quality gate passed across Python, shared package, desktop, and Rust.
+- Browser smoke against local Vite app confirmed the Model Settings panel renders, shows the localhost endpoint/Gemma E2B, has no download button, and rejects `http://192.168.1.10:11434`.
+- Merged #93 via PR #94 and confirmed issue #93 is closed.
+- Created #95: Gemma E4B deep mode.
+- Started branch `feat/95-gemma-e4b-deep-mode` from updated `main`.
+- Read Gemma/model runtime docs for #95, including `docs/gemma4.md`, `docs/models/gemma.md`, `docs/models/local_model_runtime.md`, and `docs/model-routing.md`.
+- Wrote the #95 implementation plan at `docs/superpowers/plans/2026-05-08-gemma-e4b-deep-mode.md`.
+- Added red tests for E4B manifest metadata, manual-only deep selection, fallback reasons, context caps, missing-model state, and no heavy imports.
+- Confirmed red state with `uv run --python 3.13 pytest tests/test_gemma_model_manifest.py -q` failing on missing `DEEP_GEMMA_REPORT_MODEL`.
+- Implemented `DEEP_GEMMA_REPORT_MODEL`, `GemmaReportModelSelection`, and `select_gemma_report_model` with manual-only, recording, memory-pressure, and availability guardrails.
+- Updated README/model docs for E4B manual deep-mode metadata, 16K context cap, and E2B fallback behavior.
+- Focused #95 checks passed:
+  - `uv run --python 3.13 ruff format .`
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright`
+  - `uv run --python 3.13 pytest tests/test_gemma_model_manifest.py tests/test_local_report_runtime.py tests/test_model_availability.py tests/test_portfolio_claim_discipline.py -q` (47 passed)
+- Full #95 quality gate passed across Python, shared, desktop, and Rust.
+- Added #93 regression coverage for the documented PaddleOCR `predict()` API, PP-OCR constructor options, and `rec_texts`/`rec_scores` output parsing from `docs/pp_ocr.md`.
+- Updated the PaddleOCR adapter to use the documented `predict()` path, support current `rec_texts`/`rec_scores` and older tuple result shapes, and keep temporary screenshot files cleaned up safely.
+- Confirmed PaddleOCR is not installed in this local environment with a lightweight `importlib.util.find_spec("paddleocr")` check, so no real OCR smoke was run.
+- Focused #93 checks now pass:
+  - `uv run --python 3.13 ruff format .`
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright`
+  - `uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py tests/test_ocr_runtime.py tests/test_selective_ocr_worker.py -q` (24 passed)
+- Full #93 quality gate passed across Python, shared, desktop, and Rust.
+- Added red tests for #93 in `tests/test_ocr_runtime.py` and `tests/test_selective_ocr_worker.py` covering runtime binding fallback, fake Paddle recognizer parsing, per-session OCR cap, and safe runtime-failure skip.
+- Confirmed red state with `uv run --python 3.13 pytest tests/test_ocr_runtime.py tests/test_selective_ocr_worker.py -q` failing on missing `build_paddle_ocr_engine`.
+- Merged #91 via PR #92 and confirmed the issue is closed.
+- Created #93: Real PaddleOCR adapter.
+- Started branch `feat/93-real-paddleocr-adapter` from updated `main`.
+- Wrote implementation plan at `docs/superpowers/plans/2026-05-08-real-paddleocr-adapter.md`.
+- Full #91 quality gate passed after implementation updates:
+  - `uv run --python 3.13 ruff format .`
+  - `uv run --python 3.13 ruff check .`
+  - `uv run --python 3.13 pyright`
+  - `uv run --python 3.13 pytest` (215 passed)
+  - `pnpm --dir packages/shared typecheck`
+  - `pnpm --dir packages/shared test` (14 passed)
+  - `pnpm --dir apps/desktop typecheck`
+  - `pnpm --dir apps/desktop lint`
+  - `pnpm --dir apps/desktop test` (28 passed)
+  - `pnpm --dir apps/desktop build`
+  - `cargo fmt --all -- --check`
+  - `cargo clippy --workspace --all-targets -- -D warnings`
+  - `cargo test --workspace` (31 passed)
+- Focused #91 checks passed:
+  - `uv run --python 3.13 pytest tests/test_qwen_embedding_runtime.py -q` (9 passed)
+  - `uv run --python 3.13 pytest tests/test_model_cache.py -q` (15 passed)
+  - `uv run --python 3.13 pytest tests/test_model_availability.py -q` (10 passed)
+  - `uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py -q` (6 passed)
+- Updated README/model-routing/model policy docs for #91 embedding adapter scope, vector-storage decision, and no-auto-download/no-recording-load limits.
+- Implemented `worktrace_agent.ai.qwen_embedding_runtime` with a localhost-only fakeable `/embed` adapter, response validation, redacted input payloads, and a `QwenCommandEmbeddingModel` bridge for existing command-clustering flows.
+- Added a metadata-only Qwen embedding manifest with explicit model/cache policy for `Qwen/Qwen3-Embedding-0.6B`, plus availability/cache config builders.
+- Confirmed green state with `uv run --python 3.13 pytest tests/test_qwen_embedding_runtime.py -q` (9 passed).
+- Added red tests in `services/local-agent/tests/test_qwen_embedding_runtime.py` for localhost-only embedding runtime, redacted payloads, evidence-cited clustering, unavailable fallback, cache spec metadata, and no heavy imports.
+- Confirmed red state with `uv run --python 3.13 pytest tests/test_qwen_embedding_runtime.py -q` failing on missing `worktrace_agent.ai.qwen_embedding_runtime`.
+- Merged #89 via PR #90 and confirmed the issue is closed.
+- Created #91: Embedding runtime: Qwen3-Embedding-0.6B.
+- Started branch `feat/91-qwen-embedding-runtime-v2` from updated `main`.
+- Re-read required docs for model/runtime constraints, including Qwen embedding docs and model policies.
+- Wrote implementation plan at `docs/superpowers/plans/2026-05-07-qwen3-embedding-runtime.md`.
+- #69 export/review UX merged via PR #70.
+- #71 screenshot metadata UI merged via PR #72.
+- #73 session browser/delete/open folder merged via PR #74.
+- #75 sidecar packaging completed via merged PR #76.
+- Created #77: Performance and storage cleanup.
+- Started branch `feat/77-performance-storage-cleanup`.
+- Wrote implementation plan at `docs/superpowers/plans/2026-05-07-performance-storage-cleanup.md`.
+- Added red tests for screenshot PNG policy, retention pruning, missing-file cleanup, outside-root rejection, and safe worker storage failure.
+- Implemented PNG screenshot artifact encoding, compressed byte-size metadata, retention pruning, safe artifact cleanup, and non-fatal screenshot storage failures.
+- Updated README and architecture docs for PNG/retention behavior and deferred JPEG/WebP/OCR/model runtime work.
+- Ran the full #77 local quality gate successfully.
+- Merged #77 via PR #78 and confirmed the issue is closed.
+- Created #79: Selective OCR runtime.
+- Started branch `feat/79-selective-ocr-runtime`.
+- Created missing `docs/models/*` policy docs for the OCR/model phase.
+- Wrote implementation plan at `docs/superpowers/plans/2026-05-07-selective-ocr-runtime.md`.
+- Added red tests for OCR privacy guards, secret-risk refusal, empty image validation, evidence ID metadata, and optional OCR runtime availability.
+- Implemented OCR privacy policy skips, secret-risk refusal, candidate validation, OCR evidence ID metadata, and lightweight optional runtime availability checks.
+- Updated README, architecture, and model-routing docs for selective OCR guardrails and non-bundled PaddleOCR limitations.
+- Updated `.gitignore` so `docs/models/*.md` policy docs are tracked while model artifact files remain ignored.
+- Ran the full #79 local quality gate successfully.
+- Merged #79 via PR #80 and confirmed the issue is closed.
+- Created #81: Model download/cache manager.
+- Started branch `feat/81-model-download-cache-manager`.
+- Wrote implementation plan at `docs/superpowers/plans/2026-05-07-model-download-cache-manager.md`.
+- Added red tests for model cache states, local cache paths, disk-space checks, checksum validation, and no heavy model imports.
+- Implemented metadata-only model cache manager with no download or runtime loading path.
+- Updated README and model policy docs for metadata-only cache behavior and no automatic model downloads.
+- Ran the full #81 local quality gate successfully.
+- Merged #81 via PR #82 and confirmed the issue is closed.
+- Created #83: Local LLM report runtime.
+- Started branch `feat/83-local-llm-report-runtime`.
+- Wrote implementation plan at `docs/superpowers/plans/2026-05-07-local-llm-report-runtime.md`.
+- Added red tests for localhost-only report runtime URL validation, fake transport request payload, safe failures, evidence-cited report integration, and no heavy imports.
+- Implemented a localhost-only Ollama-style report runtime adapter with injectable JSON transport and stdlib urllib transport.
+- Updated README and model docs for adapter-only runtime support, no bundled/downloaded model, and no real runtime smoke.
+- Added red tests for report-runtime generation budget fields, Ollama generation options, prompt-size refusal before transport, and known mode validation.
+- Implemented conservative local report runtime budgets: default 8192 context tokens, deep-mode cap 16384, default 512 output tokens, low temperature, and safe oversized-prompt failure.
+- Updated README, model-routing, and model policy docs for budgeted local report runtime behavior and no full long-context default.
+- Added red tests for rejecting local report runtime base URLs with credentials or path prefixes.
+- Tightened local report runtime URL normalization to allow only a localhost origin.
+- Ran the full #83 quality gate successfully after final test/doc updates.
+- Opened PR #84 for #83, confirmed GitGuardian check passed, merged PR #84 into `main`, and confirmed issue #83 is closed.
+- Created #85: AI report UI + generate button.
+- Started branch `feat/85-ai-report-ui` from updated `main`.
+- Inspected the existing React export panel, Tauri sidecar bridge, FastAPI session routes, deterministic timeline builder, report contract, and model availability states.
+- Wrote the #85 implementation plan at `docs/superpowers/plans/2026-05-07-ai-report-ui.md`.
+- Added red tests for FastAPI AI report status/generate/cancel routes, Rust sidecar AI report bridge commands, and React AI report UI unavailable/success/cancel/recording-disabled states.
+- Implemented FastAPI AI report boundary routes with a default unavailable service and test injection, Rust typed localhost bridge commands, typed Tauri client wrappers, and the desktop local AI report panel.
+- Updated README/model docs/claim-discipline expectations to state that the UI is wired but defaults to unavailable without a configured local runtime.
+- Added safe failed-state handling when an injected/report service raises, so generation returns a redacted `failed_safely` result instead of leaking prompt/runtime errors.
+- Reran the full #85 quality gate successfully.
+- Staged, committed, pushed, opened PR #86 for #85, confirmed the available GitGuardian check was green, merged PR #86 into `main`, and confirmed issue #85 is closed.
+- Created #87: Gemma E2B local default config.
+- Started branch `feat/87-gemma-e2b-default-config` from updated `main`.
+- Read the required project docs and Gemma/model policy docs for #87.
+- Wrote the #87 implementation plan at `docs/superpowers/plans/2026-05-07-gemma-e2b-default-config.md`.
+- Added red tests for the Gemma 4 E2B-it Q4 default manifest, Ollama/Hugging Face model IDs, conservative budgets, 128K rejection, missing-model unavailable behavior, and no heavy imports.
+- Implemented `worktrace_agent.ai.gemma_manifest` with a metadata-only default Gemma report model manifest plus runtime/availability config builders.
+- Updated README, model-routing, and model runtime docs for the exact Gemma default config and no-download/no-runtime limitations.
+- Fixed the new Python module import ordering with Ruff.
+- Ran the full #87 quality gate successfully.
+- Self-review found that explicit `context_budget_tokens=0` would fall back to the default in the Gemma config builder.
+- Added a red regression test for zero context budget and fixed the builder to validate it explicitly.
+- Reran the focused #87 tests and full quality gate successfully after the zero-budget fix.
+- Staged, committed, pushed, opened PR #88 for #87, confirmed the available GitGuardian check was green, merged PR #88 into `main`, and confirmed issue #87 is closed.
+- Created #89: Real model download manager.
+- Started branch `feat/89-real-model-download-manager` from updated `main`.
+- Refreshed the mandated repo/GitHub checks for #89.
+- Re-read the required project docs and model download/runtime policy docs for #89.
+- Wrote the #89 implementation plan at `docs/superpowers/plans/2026-05-07-real-model-download-manager.md`.
+- Added red tests for `verifying` cache state, model source/manual spec fields, source URL credential rejection, insufficient disk, checksum mismatch preserving an existing cached model, successful local-file install, exact-file uninstall, gitignore artifact protections, and no heavy imports.
+- Implemented manual local-file model install with disk-space checks, temp-file copy, expected-size/checksum verification, and atomic replace.
+- Implemented exact cached model file uninstall without recursive directory deletion.
+- Added `.gitignore` model artifact protections for `.bin`, `.tflite`, and `.task`.
+- Updated README and model policy docs for the manual install/uninstall behavior and no-network/no-runtime limitations.
+- Ran the focused #89 tests and full quality gate successfully after fixing one Ruff line-length issue.
+
+## Current Local Changes
+- `docs/AGENT_STATE.md`
+- `README.md`
+- `docs/superpowers/plans/2026-05-08-model-settings-runtime-status-ui.md`
+- `apps/desktop/src/App.tsx`
+- `apps/desktop/src/App.test.tsx`
+- `services/local-agent/pyproject.toml` (user-confirmed dependency update)
+- `services/local-agent/uv.lock` (user-confirmed dependency update)
+
+## Tests Run
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_ai_report_eval_benchmark.py -q` — failed as expected because `worktrace_agent.evals.ai_report_benchmark` was not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_ai_report_eval_benchmark.py -q` — passed, 5 tests.
+- `cd services/local-agent; uv run --python 3.13 python scripts/evaluate_model.py` — passed and printed deterministic golden-session plus AI report eval benchmark tables.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_ai_report_eval_benchmark.py tests/test_golden_sessions_eval.py tests/test_portfolio_claim_discipline.py -q` — passed, 17 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed after formatting changed Python files.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — failed once on style/import cleanup in the new benchmark files, then passed after fixing the root cause.
+- `cd services/local-agent; uv run --python 3.13 pyright` — failed once on missing/unknown typing in the new benchmark helpers, then passed after tightening annotations.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_e2b_smoke_script.py -q` — failed as expected because `worktrace_agent.scripts.smoke_gemma_e2b_report` was not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_e2b_smoke_script.py -q` — passed, 3 tests after smoke script implementation.
+- `cd services/local-agent; uv run --python 3.13 python scripts/smoke_gemma_e2b_report.py` — failed safely first with `status: failed`, `reason: Local report generation failed safely.`, and privacy leak count `0`.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_e2b_smoke_script.py -q` — failed as expected after adding the longer-timeout regression.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_e2b_smoke_script.py -q` — passed, 3 tests after setting the smoke timeout to 180 seconds.
+- `cd services/local-agent; uv run --python 3.13 python scripts/smoke_gemma_e2b_report.py` — passed with Ollama `0.23.1`, model `gemma4:e2b`, evidence ID `evt_gemma_e2b_smoke_terminal`, and privacy leak count `0`.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_screenshot_sampler.py tests/test_screenshot_capture_worker.py tests/test_screenshot_retention.py -q` — failed as expected because `ScreenshotArtifactFormat` and `ScreenshotRetentionConfig` are not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_screenshot_sampler.py tests/test_screenshot_capture_worker.py tests/test_screenshot_retention.py -q` — passed, 15 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py -q` — passed, 6 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, reformatted changed Python files.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — failed once on default `ScreenshotRetentionConfig()` argument construction, then passed after replacing it with an explicit default config.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 157 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 23 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 28 Rust integration tests.
+- `git diff --check` — passed.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_selective_ocr_worker.py tests/test_ocr_runtime.py -q` — failed as expected because `worktrace_agent.capture.ocr_runtime` and new OCR guard states are not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_selective_ocr_worker.py tests/test_ocr_runtime.py -q` — passed, 12 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py tests/test_selective_ocr_worker.py tests/test_ocr_runtime.py -q` — passed, 18 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, reformatted changed Python files.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — passed.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 165 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 23 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 28 Rust integration tests.
+- `git diff --check` — passed.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_model_cache.py -q` — failed as expected because `worktrace_agent.ai.model_cache` was not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_model_cache.py -q` — passed, 8 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py tests/test_model_cache.py -q` — passed, 14 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, reformatted changed Python files.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — passed.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 173 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 23 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 28 Rust integration tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — failed as expected because `worktrace_agent.ai.local_report_runtime` was not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — passed, 5 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — failed as expected because local report runtime budget fields and Ollama options were not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — passed, 10 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — passed, 12 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — failed as expected because URL credentials/path-prefix validation was not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_local_report_runtime.py -q` — passed, 14 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_model_cache.py -q` — passed, 8 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py -q` — passed, 6 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, 85 files left unchanged after final updates.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — passed.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 187 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 23 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 28 Rust integration tests.
+- `git diff --check` — passed.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/api/test_ai_report_routes.py -q` — failed as expected: routes/injection missing.
+- `pnpm --dir apps/desktop test -- --run App.test.tsx` — failed as expected: AI report UI still static/unwired.
+- `cd apps/desktop/src-tauri; cargo test --test sidecar_service ai_report -- --nocapture` — failed as expected: AI report bridge commands/types missing.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/api/test_ai_report_routes.py -q` — passed, 4 tests.
+- `cd apps/desktop/src-tauri; cargo test --test sidecar_service ai_report -- --nocapture` — passed, 3 focused AI report bridge tests.
+- `pnpm --dir apps/desktop test -- --run App.test.tsx` — passed, 27 tests after waiting for async report status in the new tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, 1 file reformatted after safe failure updates.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/api/test_ai_report_routes.py tests/test_portfolio_claim_discipline.py -q` — passed, 11 tests.
+- `pnpm --dir apps/desktop test -- --run App.test.tsx` — passed, 28 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — passed.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 192 tests.
+- `pnpm --dir apps/desktop test` — passed, 28 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 31 Rust integration tests.
+- `git diff --check` — passed.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_model_manifest.py -q` — failed as expected because `worktrace_agent.ai.gemma_manifest` was not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_model_manifest.py -q` — passed, 6 tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_model_manifest.py tests/test_local_report_runtime.py tests/test_model_cache.py tests/test_portfolio_claim_discipline.py -q` — passed, 34 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, 89 files left unchanged.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — failed once on unsorted imports in `gemma_manifest.py`, then passed after `ruff check . --fix`.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 198 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 28 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 31 Rust integration tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_model_manifest.py -q` — failed as expected for explicit zero context budget, then passed after adding the builder validation.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_gemma_model_manifest.py tests/test_local_report_runtime.py tests/test_model_cache.py tests/test_portfolio_claim_discipline.py -q` — passed, 35 tests after the zero-budget fix.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed, 89 files left unchanged after the zero-budget fix.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — passed after the zero-budget fix.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors after the zero-budget fix.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 199 tests after the zero-budget fix.
+- `pnpm --dir packages/shared typecheck` — passed after the zero-budget fix.
+- `pnpm --dir packages/shared test` — passed, 14 tests after the zero-budget fix.
+- `pnpm --dir apps/desktop typecheck` — passed after the zero-budget fix.
+- `pnpm --dir apps/desktop lint` — passed after the zero-budget fix.
+- `pnpm --dir apps/desktop test` — passed, 28 tests after the zero-budget fix.
+- `pnpm --dir apps/desktop build` — passed after the zero-budget fix.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed after the zero-budget fix.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed after the zero-budget fix.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 31 Rust integration tests after the zero-budget fix.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_model_cache.py -q` — failed as expected because `install_model_from_local_file` and `uninstall_model` were not implemented yet.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_model_cache.py -q` — passed, 15 tests after manual install/uninstall implementation.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_model_cache.py tests/test_gemma_model_manifest.py tests/test_model_availability.py tests/test_portfolio_claim_discipline.py -q` — passed, 38 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed after reformatting 2 files.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — failed once on one long line in `model_cache.py`, then passed after formatting.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 206 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 28 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 31 Rust integration tests.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_ocr_runtime.py tests/test_selective_ocr_worker.py -q` — passed, 18 tests after switching the adapter to PaddleOCR `predict()` and documented response parsing.
+- `cd services/local-agent; uv run --python 3.13 pytest tests/test_portfolio_claim_discipline.py tests/test_ocr_runtime.py tests/test_selective_ocr_worker.py -q` — passed, 24 tests.
+- `cd services/local-agent; uv run --python 3.13 ruff format .` — passed.
+- `cd services/local-agent; uv run --python 3.13 ruff check .` — passed.
+- `cd services/local-agent; uv run --python 3.13 pyright` — passed, 0 errors.
+- `cd services/local-agent; uv run --python 3.13 pytest` — passed, 221 tests.
+- `pnpm --dir packages/shared typecheck` — passed.
+- `pnpm --dir packages/shared test` — passed, 14 tests.
+- `pnpm --dir apps/desktop typecheck` — passed.
+- `pnpm --dir apps/desktop lint` — passed.
+- `pnpm --dir apps/desktop test` — passed, 28 tests.
+- `pnpm --dir apps/desktop build` — passed.
+- `cd apps/desktop/src-tauri; cargo fmt --all -- --check` — passed.
+- `cd apps/desktop/src-tauri; cargo clippy --workspace --all-targets -- -D warnings` — passed.
+- `cd apps/desktop/src-tauri; cargo test --workspace` — passed, 31 Rust integration tests.
+- `git diff --check` — passed.
+
+## Tests Not Run
+- None for #105.
+
+## Known Blockers
+- None currently.
+
+## Next Exact Step
+Run `git diff --check`, self-review the #105 diff, then commit, push, open PR, wait for checks, and merge if green.
+
+## Do Not Forget
+- No OCR before OCR issue.
+- No model runtime before model issue.
+- No file contents.
+- No keylogging.
+- No browser history scraping.
+- README must match implemented code.

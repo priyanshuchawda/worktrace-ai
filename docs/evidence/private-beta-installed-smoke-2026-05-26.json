@@ -1,0 +1,65 @@
+{
+  "run_id": "20260526-195712",
+  "result": "passed",
+  "reason": "Installed desktop and sidecar smoke completed with safe aggregate evidence only.",
+  "started_at": "2026-05-26T19:57:12+05:30",
+  "finished_at": "2026-05-26T20:13:35+05:30",
+  "duration_seconds": 983.8,
+  "no_paid_actions": true,
+  "live_gemini_called": false,
+  "model_downloads_started": false,
+  "installer_signed": false,
+  "sidecar_port": 18765,
+  "install_dir": "artifacts/validation/20260526-195712/WorkTraceAI",
+  "commands": [
+    "pwsh -File scripts/validation/run-installed-beta-smoke.ps1 -Build"
+  ],
+  "steps": [
+    {
+      "name": "package-sidecar",
+      "status": "passed",
+      "detail": "duration=165.4s"
+    },
+    {
+      "name": "package-windows",
+      "status": "passed",
+      "detail": "duration=797.3s"
+    },
+    {
+      "name": "installer-found",
+      "status": "passed",
+      "detail": "apps/desktop/src-tauri/target/release/bundle/nsis/WorkTrace AI_0.1.0_x64-setup.exe"
+    },
+    {
+      "name": "silent-install",
+      "status": "passed",
+      "detail": "exit=0"
+    },
+    {
+      "name": "installed-files",
+      "status": "passed",
+      "detail": "desktop, sidecar, uninstaller present"
+    },
+    {
+      "name": "desktop-launch",
+      "status": "passed",
+      "detail": "running_after_8s=true"
+    },
+    {
+      "name": "sidecar-health",
+      "status": "passed",
+      "detail": "status=ok; schema=003_ocr_results.sql"
+    },
+    {
+      "name": "silent-uninstall",
+      "status": "passed",
+      "detail": "exit=0"
+    }
+  ],
+  "remaining_limits": [
+    "This is not a signed public release.",
+    "This smoke does not exercise manual first-run UI clicks or a real recording session.",
+    "This smoke does not download, bundle, or run local AI models.",
+    "Manual private-beta demo-flow evidence is still required before external beta."
+  ]
+}

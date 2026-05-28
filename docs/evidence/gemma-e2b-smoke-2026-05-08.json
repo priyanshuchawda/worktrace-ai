@@ -1,0 +1,19 @@
+{
+  "date": "2026-05-08",
+  "issue": 103,
+  "command": "cd services/local-agent; uv run --python 3.13 python scripts/smoke_gemma_e2b_report.py",
+  "status": "passed",
+  "model_name": "gemma4:e2b",
+  "ollama_version": "ollama version is 0.23.1",
+  "evidence_ids": [
+    "evt_gemma_e2b_smoke_terminal"
+  ],
+  "privacy_leak_count": 0,
+  "report_summary": "Ran terminal command: uv run --python 3.13 pytest tests/test_local_report_runtime.py",
+  "limitations": [
+    "This is a tiny local smoke test, not a quality benchmark.",
+    "It proves the existing localhost Ollama report adapter can return an evidence-cited report from the installed Gemma E2B tag.",
+    "It does not make models required for recording, timeline review, exports, CI, or normal tests.",
+    "It does not prove Gemma E4B, Qwen, PaddleOCR, or faster-whisper runtime behavior."
+  ]
+}

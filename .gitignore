@@ -1,0 +1,66 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Env/secrets
+.env
+.env.*
+!.env.example
+
+# Node/React/Tauri frontend
+node_modules/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+
+# Rust/Tauri
+target/
+**/src-tauri/target/
+apps/desktop/src-tauri/binaries/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.egg-info/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.coverage
+htmlcov/
+
+# Local app data
+.worktrace/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+sessions/
+screenshots/
+audio/
+exports/
+logs/
+
+# Models/artifacts
+artifacts/validation/
+models/
+!docs/models/
+!docs/models/*.md
+*.onnx
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.gguf
+*.tflite
+*.task
+
+# Temporary
+tmp/
+temp/
+.cache/

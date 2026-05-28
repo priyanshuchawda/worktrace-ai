@@ -1,0 +1,59 @@
+name: Packaging Smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: packaging-smoke-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  WORKTRACE_AI_PROVIDER: local_ollama
+  WORKTRACE_ENABLE_DEV_CLOUD_AI: "false"
+
+jobs:
+  windows-packaging-smoke:
+    name: Windows packaging smoke
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: services/local-agent/uv.lock
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install desktop dependencies
+        run: pnpm --dir apps/desktop install --frozen-lockfile
+      - name: Build sidecar
+        run: pnpm --dir apps/desktop package:sidecar
+      - name: Build Windows NSIS package for smoke only
+        run: pnpm --dir apps/desktop package:windows
+      - name: Validate installer artifacts are not release assets
+        shell: pwsh
+        run: |
+          $bundleDir = "apps/desktop/src-tauri/target/release/bundle"
+          pwsh -File scripts/release/validate-release-artifacts.ps1 -ArtifactPath $bundleDir -Channel alpha
+          if ($LASTEXITCODE -eq 0) {
+            throw "Expected alpha release guard to reject unsigned packaging artifacts."
+          }
+          Write-Output "PASS | release artifact guard rejected unsigned packaging artifacts as expected"
+      - name: State artifact policy
+        shell: pwsh
+        run: |
+          Write-Output "Packaging smoke intentionally does not upload artifacts."
+          Write-Output "Generated NSIS output is unsigned and local/internal QA only."
